@@ -1,11 +1,17 @@
 import { FC } from 'react';
 import cn from 'classnames';
+
 import { TodoDto } from '../models';
+import { todoRemoved, todoStatusChanged } from '../api/todos';
 
 const Item: FC<TodoDto> = ({ id, value, isActive }) => {
-  const handleRemoveClick = () => {};
+  const handleRemoveClick = () => {
+    todoRemoved(id);
+  };
 
-  const handleStatusClick = () => {};
+  const handleStatusClick = () => {
+    todoStatusChanged(id);
+  };
 
   return (
     <div className="flex items-center mb-4">

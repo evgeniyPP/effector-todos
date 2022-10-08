@@ -1,16 +1,43 @@
-import { FC, ChangeEvent, FormEvent } from 'react';
+import { useEffect } from 'react';
+import { useStore } from 'effector-react';
+import {
+  $isPersist,
+  persistValueToggled,
+  persistValueRequested,
+} from './api/persist';
+import type { FC, ChangeEvent, FormEvent } from 'react';
+
+import {
+  $activeTodos,
+  $doneTodos,
+  $newTodoInput,
+  newTodoChanged,
+  newTodoSubmitted,
+} from './api/todos';
 import Items from './components/Items';
 
 const App: FC = () => {
-  const items: any[] = [];
+  const activeTodos = useStore($activeTodos);
+  const doneTodos = useStore($doneTodos);
+  const newTodoInput = useStore($newTodoInput);
+  const isPersist = useStore($isPersist);
 
-  const handleCheckboxChange = () => {};
+  const handleCheckboxChange = () => {
+    persistValueToggled();
+  };
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {};
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    newTodoChanged(e.target.value);
+  };
 
   const handleAddFormSubmit = (e: FormEvent) => {
     e.preventDefault();
+    newTodoSubmitted();
   };
+
+  useEffect(() => {
+    persistValueRequested();
+  }, []);
 
   return (
     <div className="flex items-center justify-center w-full min-h-screen font-sans bg-gray-100">
@@ -23,7 +50,7 @@ const App: FC = () => {
                 onChange={handleCheckboxChange}
                 type="checkbox"
                 value="persist"
-                checked={false}
+                checked={isPersist}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
@@ -34,7 +61,7 @@ const App: FC = () => {
           </div>
           <form onSubmit={handleAddFormSubmit} className="flex mt-4">
             <input
-              value={''}
+              value={newTodoInput}
               onChange={handleInputChange}
               className="w-full px-3 py-2 mr-3 text-gray-700 border rounded shadow appearance-none"
               placeholder="Add new todo"
@@ -47,8 +74,8 @@ const App: FC = () => {
             </button>
           </form>
         </div>
-        <Items data={items.filter(i => i.isActive)} />
-        <Items data={items.filter(i => !i.isActive)} />
+        <Items data={activeTodos} />
+        <Items data={doneTodos} />
       </div>
     </div>
   );
